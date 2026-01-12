@@ -1,0 +1,62 @@
+{
+   "action": {
+   },
+   "background": {
+      "service_worker": "background.js",
+      "type": "module"
+   },
+   "commands": {
+      "highlight-last-format": {
+         "description": "Highlight (Same format)",
+         "suggested_key": {
+            "default": "Alt+A",
+            "mac": "Alt+A"
+         }
+      },
+      "highlight-text": {
+         "description": "Highlight Text",
+         "suggested_key": {
+            "default": "Alt+S",
+            "mac": "Alt+S"
+         }
+      },
+      "toggle-bookmark": {
+         "description": "Save Bookmark",
+         "suggested_key": {
+            "default": "Alt+B",
+            "mac": "Alt+B"
+         }
+      },
+      "toggle-sidebar": {
+         "description": "Toggle Sidebar",
+         "suggested_key": {
+            "default": "Alt+W",
+            "mac": "Alt+W"
+         }
+      }
+   },
+   "content_scripts": [ {
+      "js": [ "content-loader.js" ],
+      "matches": [ "\u003Call_urls>" ]
+   } ],
+   "description": "Productivity Highlighter & Annotation Tool for Websites & PDFs with AI Summary - free, easy to use, no sign-up required.",
+   "host_permissions": [ "\u003Call_urls>" ],
+   "icons": {
+      "128": "assets/marker-icon.png",
+      "16": "assets/marker-icon-16x16.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApY8W9MxuqZFG+wvQtILKY0RhkP8kI1a+BF/S/eITQz/SNjkkyxM4SOVbda5YGYD3EFkldSDTc9IgcIw4yG/JXDwhcXq/DcAt+TpV3KZgCMQI/kqGLj4IcDyx3DJ8YOi9rvd47i5+ewVHZYAmR0YXeSDAs4gnD0mGKqExR4P1eCBJxtdjbtEv2wtGHCXMP5Ch5y7Sztk28JANTHgsp5MKbS6ijv9Hvh/6vm0UP53A4Y5k0SMYolMCnHP/og0+Tn1J6z/loUqLJClcozOA8Qhz7a5NHZU75zWMiez1vHB0sZ0vUpAP+Rk5t38f3/KMEMJBou30jwSbwBjw6YRnYarGiQIDAQAB",
+   "manifest_version": 3,
+   "name": "Web Highlights: PDF & Web Highlighter + Notes & AI Summary",
+   "permissions": [ "tabs", "contextMenus", "storage", "webRequest", "scripting" ],
+   "short_name": "Web Highlights",
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "12.0.0",
+   "web_accessible_resources": [ {
+      "matches": [ "https://web-highlights.com/*", "https://pre.web-highlights.com/*", "http://localhost:8081/*" ],
+      "resources": [ "pdf/*" ]
+   }, {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "content.js", "@webhighlights/shared-components/dist/account-info/index.js", "@webhighlights/shared-components/dist/add-content/index.js", "@webhighlights/shared-components/dist/ai-chat/index.js", "@webhighlights/shared-components/dist/ai-summary/index.js", "@webhighlights/shared-components/dist/ai-summary-btn/index.js", "@webhighlights/shared-components/dist/auth/index.js", "@webhighlights/shared-components/dist/auto-download-prompt/index.js", "@webhighlights/shared-components/dist/avatar/index.js", "@webhighlights/shared-components/dist/backup-or-sync-prompt/index.js", "@webhighlights/shared-components/dist/blacklisted-urls/index.js", "@webhighlights/shared-components/dist/bookmark/index.js", "@webhighlights/shared-components/dist/bookmark-details/index.js", "@webhighlights/shared-components/dist/bookmark-explore-toolbar/index.js", "@webhighlights/shared-components/dist/bookmark-header/index.js", "@webhighlights/shared-components/dist/bookmark-likes/index.js", "@webhighlights/shared-components/dist/bookmark-preview/index.js", "@webhighlights/shared-components/dist/bookmark-preview-highlights-notes-info/index.js", "@webhighlights/shared-components/dist/cancel-subscription/index.js", "@webhighlights/shared-components/dist/change-color-mode/index.js", "@webhighlights/shared-components/dist/chrome-rating-prompt/index.js", "@webhighlights/shared-components/dist/chrome-settings/index.js", "@webhighlights/shared-components/dist/clipboard-button/index.js", "@webhighlights/shared-components/dist/color-box/index.js", "@webhighlights/shared-components/dist/color-picker/index.js", "@webhighlights/shared-components/dist/create-bookmark/index.js", "@webhighlights/shared-components/dist/cta-popup/index.js", "@webhighlights/shared-components/dist/datetimepicker/index.js", "@webhighlights/shared-components/dist/delete-entity-list/index.js", "@webhighlights/shared-components/dist/dialog/index.js", "@webhighlights/shared-components/dist/discount-info/index.js", "@webhighlights/shared-components/dist/discover-feed-info/index.js", "@webhighlights/shared-components/dist/documents-list/index.js", "@webhighlights/shared-components/dist/dots-menu/index.js", "@webhighlights/shared-components/dist/dropdown/index.js", "@webhighlights/shared-components/dist/entity-grid/index.js", "@webhighlights/shared-components/dist/entity-list/index.js", "@webhighlights/shared-components/dist/expiry-info/index.js", "@webhighlights/shared-components/dist/fallback-img/index.js", "@webhighlights/shared-components/dist/favicon/index.js", "@webhighlights/shared-components/dist/grid/index.js", "@webhighlights/shared-components/dist/grid-toolbar/index.js", "@webhighlights/shared-components/dist/highlighter-mode-selector/index.js", "@webhighlights/shared-components/dist/icon/index.js", "@webhighlights/shared-components/dist/image-viewer/index.js", "@webhighlights/shared-components/dist/image-with-fallback/index.js", "@webhighlights/shared-components/dist/imprint/index.js", "@webhighlights/shared-components/dist/invoices/index.js", "@webhighlights/shared-components/dist/learning-btn/index.js", "@webhighlights/shared-components/dist/learning-dashboard/index.js", "@webhighlights/shared-components/dist/learning-reminder/index.js", "@webhighlights/shared-components/dist/learning-settings/index.js", "@webhighlights/shared-components/dist/learning-streak-overview/index.js", "@webhighlights/shared-components/dist/legal-footer/index.js", "@webhighlights/shared-components/dist/like-button/index.js", "@webhighlights/shared-components/dist/link-preview/index.js", "@webhighlights/shared-components/dist/loading/index.js", "@webhighlights/shared-components/dist/loading-text/index.js", "@webhighlights/shared-components/dist/lobby-container/index.js", "@webhighlights/shared-components/dist/lobby-container-extension/index.js", "@webhighlights/shared-components/dist/logo/index.js", "@webhighlights/shared-components/dist/logo-animated/index.js", "@webhighlights/shared-components/dist/mark-blockquotes-teaser/index.js", "@webhighlights/shared-components/dist/mark-element/index.js", "@webhighlights/shared-components/dist/mark-element-toolbar/index.js", "@webhighlights/shared-components/dist/mark-media-item/index.js", "@webhighlights/shared-components/dist/mark-preview/index.js", "@webhighlights/shared-components/dist/marker/index.js", "@webhighlights/shared-components/dist/media-type-dropdown/index.js", "@webhighlights/shared-components/dist/media-type-dropdown-item/index.js", "@webhighlights/shared-components/dist/media-type-menu/index.js", "@webhighlights/shared-components/dist/modal/index.js", "@webhighlights/shared-components/dist/notes-editor/index.js", "@webhighlights/shared-components/dist/notifications-btn/index.js", "@webhighlights/shared-components/dist/notifications-list/index.js", "@webhighlights/shared-components/dist/page-content-preview/index.js", "@webhighlights/shared-components/dist/payment-method/index.js", "@webhighlights/shared-components/dist/pdf-hint/index.js", "@webhighlights/shared-components/dist/popover/index.js", "@webhighlights/shared-components/dist/popup-toolbox/index.js", "@webhighlights/shared-components/dist/premium-benefits/index.js", "@webhighlights/shared-components/dist/pricing/index.js", "@webhighlights/shared-components/dist/privacy-policy/index.js", "@webhighlights/shared-components/dist/reader/index.js", "@webhighlights/shared-components/dist/reader-content/index.js", "@webhighlights/shared-components/dist/recent-colors/index.js", "@webhighlights/shared-components/dist/reminder/index.js", "@webhighlights/shared-components/dist/reset-password/index.js", "@webhighlights/shared-components/dist/search/index.js", "@webhighlights/shared-components/dist/searchbar/index.js", "@webhighlights/shared-components/dist/settings/index.js", "@webhighlights/shared-components/dist/share-button/index.js", "@webhighlights/shared-components/dist/share-social/index.js", "@webhighlights/shared-components/dist/shortcut/index.js", "@webhighlights/shared-components/dist/show-popup-selector/index.js", "@webhighlights/shared-components/dist/sidebar/index.js", "@webhighlights/shared-components/dist/sign-up-prompt/index.js", "@webhighlights/shared-components/dist/skeleton/index.js", "@webhighlights/shared-components/dist/spread-the-word-prompt/index.js", "@webhighlights/shared-components/dist/sync-indicator/index.js", "@webhighlights/shared-components/dist/sync-status-entity/index.js", "@webhighlights/shared-components/dist/tag/index.js", "@webhighlights/shared-components/dist/tags/index.js", "@webhighlights/shared-components/dist/terms-of-service/index.js", "@webhighlights/shared-components/dist/testimonial-item/index.js", "@webhighlights/shared-components/dist/testimonials-grid/index.js", "@webhighlights/shared-components/dist/toasts/index.js", "@webhighlights/shared-components/dist/toggle-button/index.js", "@webhighlights/shared-components/dist/tooltip/index.js", "@webhighlights/shared-components/dist/upgrade-deal-prompt/index.js", "@webhighlights/shared-components/dist/upgrade-needed/index.js", "@webhighlights/shared-components/dist/youtube-loading/index.js" ]
+   } ]
+}

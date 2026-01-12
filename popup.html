@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Highlights</title>
+  <link rel="stylesheet" href="styles/popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="highlights">Highlights</button>
+        <button class="tab-btn" data-tab="logs">Logs</button>
+      </div>
+    </header>
+    
+    <div id="tab-highlights" class="tab-content active">
+        <div class="actions-bar">
+            <h1>Page Highlights</h1>
+            <button id="clear-all" class="danger-btn">Clear All</button>
+        </div>
+        <div id="highlights-list" class="highlights-list">
+          <div class="empty-state">No highlights on this page.</div>
+        </div>
+    </div>
+
+    <div id="tab-logs" class="tab-content">
+        <div class="actions-bar">
+            <h1>System Logs</h1>
+            <button id="clear-logs" class="danger-btn">Clear Logs</button>
+        </div>
+        <div id="logs-list" class="logs-list"></div>
+    </div>
+  </div>
+  <script src="lib/utils.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

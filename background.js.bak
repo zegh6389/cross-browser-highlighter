@@ -1,0 +1,72 @@
+importScripts('lib/logger.js');
+
+// Create context menu on installation
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "highlight-yellow",
+    title: "Highlight Yellow",
+    contexts: ["selection"]
+  });
+  
+  chrome.contextMenus.create({
+    id: "highlight-green",
+    title: "Highlight Green",
+    contexts: ["selection"]
+  });
+});
+
+// Handle context menu clicks
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId.startsWith("highlight-")) {
+    const color = info.menuItemId.split("-")[1];
+    
+    // Send message to content script
+    Logger.info(`Sending highlight command: ${color}`, { tabId: tab.id });
+    
+    sendMessageToTab(tab.id, {
+      action: "HIGHLIGHT_SELECTION",
+      color: color
+    });
+  }
+});
+
+async function sendMessageToTab(tabId, message) {
+  try {
+    await chrome.tabs.sendMessage(tabId, message);
+    Logger.info("Message delivered successfully");
+  } catch (err) {
+    Logger.warn("Message failed, attempting to inject content scripts...", { error: err.message });
+    
+    try {
+      await injectScripts(tabId);
+      Logger.info("Scripts injected, retrying message...");
+      
+      // Retry sending message
+      await chrome.tabs.sendMessage(tabId, message);
+      Logger.info("Message delivered after injection");
+    } catch (retryErr) {
+      const msg = retryErr.message;
+      if (msg.includes("ExtensionsSettings policy") || msg.includes("Cannot access contents of url")) {
+          Logger.error("Cannot highlight on this page (Browser Restriction)", { error: msg });
+      } else {
+          Logger.error("Failed to send message after injection", { error: msg });
+      }
+    }
+  }
+}
+
+async function injectScripts(tabId) {
+  try {
+    await chrome.scripting.insertCSS({
+      target: { tabId: tabId },
+      files: ["styles/highlighter.css"]
+    });
+    
+    await chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      files: ["lib/logger.js", "lib/anchoring.js", "content.js"]
+    });
+  } catch (err) {
+    throw new Error(`Script injection failed: ${err.message}`);
+  }
+}
