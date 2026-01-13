@@ -5,6 +5,11 @@
 
 const STORAGE_KEY_PREFIX = "highlights:";
 const appliedHighlightIds = new Set();
+// Cache to reduce storage calls and improve responsiveness
+let highlightsCache = {}; 
+let cacheTimestamp = 0;
+const CACHE_TTL = 5000; // 5 seconds (optional, but good for safety)
+
 
 if (window.hasHighlighter) {
     if (typeof Logger !== 'undefined') {
@@ -114,8 +119,19 @@ async function highlightSelection(color) {
  */
 function applyHighlight(highlight) {
   if (!highlight || !highlight.id) return;
+  
   if (appliedHighlightIds.has(highlight.id)) {
-    return; // Already applied earlier (avoids duplicate marks)
+      // Check/Update existing highlight attributes (in case of sync/updates)
+      const mark = document.querySelector(`mark[data-highlight-id="${highlight.id}"]`);
+      if (mark) {
+          if (highlight.note !== undefined && mark.dataset.note !== highlight.note) {
+              mark.dataset.note = highlight.note;
+          }
+          if (highlight.noteColor && mark.dataset.noteColor !== highlight.noteColor) {
+              mark.dataset.noteColor = highlight.noteColor;
+          }
+      }
+      return; 
   }
 
   const range = Anchoring.restoreAnchor(highlight.anchor);
@@ -132,17 +148,37 @@ function applyHighlight(highlight) {
 
 // --- Storage Logic ---
 
-async function getHighlights(url) {
+/**
+ * Retrieves highlights with in-memory caching.
+ * @param {string} url 
+ * @param {boolean} forceRefresh - If true, bypasses cache
+ */
+async function getHighlights(url, forceRefresh = false) {
   const normalizedUrl = Utils.normalizeUrl(url);
+  
+  if (!forceRefresh && highlightsCache[normalizedUrl] && (Date.now() - cacheTimestamp < CACHE_TTL)) {
+      return highlightsCache[normalizedUrl];
+  }
+
   const key = STORAGE_KEY_PREFIX + normalizedUrl;
   const result = await chrome.storage.local.get(key);
-  return result[key] || [];
+  const data = result[key] || [];
+  
+  // Update cache
+  highlightsCache[normalizedUrl] = data;
+  cacheTimestamp = Date.now();
+  
+  return data;
 }
 
 async function saveHighlight(url, highlightData) {
   const normalizedUrl = Utils.normalizeUrl(url);
-  const highlights = await getHighlights(normalizedUrl);
+  const highlights = await getHighlights(normalizedUrl, true);
   highlights.push(highlightData);
+  
+  // Update cache immediately
+  highlightsCache[normalizedUrl] = highlights;
+  cacheTimestamp = Date.now();
   
   const key = STORAGE_KEY_PREFIX + normalizedUrl;
   try {
@@ -156,11 +192,16 @@ async function saveHighlight(url, highlightData) {
 async function updateHighlight(id, updates) {
   try {
       const url = Utils.normalizeUrl(window.location.href);
-      const highlights = await getHighlights(url);
+      const highlights = await getHighlights(url, true);
       const index = highlights.findIndex(h => h.id === id);
       
       if (index !== -1) {
         highlights[index] = { ...highlights[index], ...updates };
+        
+        // Update cache
+        highlightsCache[url] = highlights;
+        cacheTimestamp = Date.now();
+
         const key = STORAGE_KEY_PREFIX + url;
         await chrome.storage.local.set({ [key]: highlights });
         
@@ -179,6 +220,19 @@ async function updateHighlight(id, updates) {
       throw e;
   }
 }
+
+// Listen for storage changes (multi-tab sync)
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local') {
+    const normalizedUrl = Utils.normalizeUrl(window.location.href);
+    const key = STORAGE_KEY_PREFIX + normalizedUrl;
+    if (changes[key]) {
+       highlightsCache[normalizedUrl] = changes[key].newValue || [];
+       cacheTimestamp = Date.now();
+       loadAndApplyHighlights();
+    }
+  }
+});
 
 // --- Note UI Logic ---
 
@@ -221,6 +275,29 @@ function showNoteEditor(id, x, y) {
   const textarea = document.createElement("textarea");
   textarea.value = existingNote;
   textarea.placeholder = "Add a note...";
+
+  // Dynamic width adjustment
+  const autoResize = () => {
+    const measure = document.createElement("span");
+    measure.style.visibility = "hidden";
+    measure.style.position = "absolute";
+    measure.style.whiteSpace = "pre";
+    measure.style.font = "14px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    measure.textContent = textarea.value || textarea.placeholder;
+    
+    document.body.appendChild(measure);
+    const textWidth = measure.offsetWidth;
+    document.body.removeChild(measure);
+
+    const minWidth = 220;
+    const maxWidth = 500;
+    const padding = 40; // Container padding + textarea padding
+    
+    const newWidth = Math.max(minWidth, Math.min(maxWidth, textWidth + padding));
+    editor.style.width = `${newWidth}px`;
+  };
+
+  textarea.addEventListener("input", autoResize);
 
   const btnContainer = document.createElement("div");
   btnContainer.className = "web-highlighter-note-buttons";
@@ -272,6 +349,9 @@ function showNoteEditor(id, x, y) {
 
   document.body.appendChild(editor);
   currentEditor = editor;
+
+  // Initial resize
+  autoResize();
   
   // Close on click outside
   const closeHandler = (e) => {
@@ -340,15 +420,20 @@ function syncAppliedHighlightIdsFromDom() {
 
 async function undoLastHighlight() {
   const url = Utils.normalizeUrl(window.location.href);
-  const key = STORAGE_KEY_PREFIX + url;
-  const result = await chrome.storage.local.get(key);
-  const highlights = result[key] || [];
+  const highlights = await getHighlights(url, true);
+  
   if (!highlights.length) {
     Logger.info("No highlights to undo");
     return;
   }
 
   const last = highlights.pop();
+  
+  // Update Cache
+  highlightsCache[url] = highlights;
+  cacheTimestamp = Date.now();
+
+  const key = STORAGE_KEY_PREFIX + url;
   await chrome.storage.local.set({ [key]: highlights });
   removeHighlightFromDom(last.id);
   Logger.info("Undo last highlight", { id: last.id });
